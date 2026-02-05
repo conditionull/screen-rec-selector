@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> This selector works in conjunction with [hyprdots](https://github.com/conditionull/hyprdots)<br />Using your own dots? Add this bind to hyprland.conf:<br />`bind = $mainMod SHIFT, R, exec, YOUR/PATH/TO/selector.sh`
+> This selector works in conjunction with [hyprdots](https://github.com/conditionull/hyprdots)<br />Using your own dots? Add this bind to hyprland.conf:<br />`bind = $mainMod SHIFT, R, exec, YOUR/PATH/TO/selector.sh`<br />And the windowrule:<br />`windowrule = match:initial_class recorder-picker, float on, size 500 250, center on, stay_focused on`
 
 Start a screen-recording with bind `SUPER+SHIFT+R` from hyprland.conf. It references a bashscript that utilizes the following dependencies:<br />
 [gpu-screen-recorder](https://aur.archlinux.org/packages/gpu-screen-recorder), [kitty](https://sw.kovidgoyal.net/kitty/binary/), [fzf](https://wiki.archlinux.org/title/Fzf), [slurp](https://man.archlinux.org/man/extra/slurp/slurp.1.en), [coreutils](https://www.gnu.org/software/coreutils/), [libnotify](https://archlinux.org/packages/extra/x86_64/libnotify/), [waybar](https://wiki.archlinux.org/title/Waybar)<br />
