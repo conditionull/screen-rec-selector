@@ -45,6 +45,7 @@ Add the waybar module + module css (recommended)<br />
     "wireplumber"
   ],
 ```
+(double check exec path below)
 ```
   "custom/recording_status": {
     "exec": "/home/doccia/workspace/github/screen-rec-selector/recording_status.sh",

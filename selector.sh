@@ -54,9 +54,8 @@ if [[ "$SELECTION" == "region" ]]; then
     REGION_ARG="-region $region_geometry"
 fi
 
-OPTION="$SELECTION"
 TIMESTAMP=$(date +%Y-%m-%d.%H.%M.%S)
-OUTPUT="$HOME/Videos/${OPTION}_${TIMESTAMP}.mp4"
+OUTPUT="$HOME/Videos/${SELECTION}_${TIMESTAMP}.mp4"
 
 BITRATE_MODE=""
 BITRATE_VALUE=""
@@ -64,7 +63,7 @@ if [[ "$QUALITY" == "very_high" || "$QUALITY" == "ultra" ]]; then
     BITRATE_MODE="-bm cbr"
     BITRATE_VALUE="-q 20000" # kbps
     gpu-screen-recorder \
-      -w "$OPTION" \
+      -w "$SELECTION" \
       $REGION_ARG \
       -f 60 \
       -c mp4 \
@@ -74,7 +73,7 @@ if [[ "$QUALITY" == "very_high" || "$QUALITY" == "ultra" ]]; then
 else
     # use quality mode for medium/high
     gpu-screen-recorder \
-      -w "$OPTION" \
+      -w "$SELECTION" \
       $REGION_ARG \
       -f 60 \
       -c mp4 \
@@ -90,8 +89,8 @@ echo "$PID" > "$PIDFILE"
 while true; do
     if [ -f "$OUTPUT" ]; then
         # notification below not needed when using waybar tray indicator
-        # notify-send -t 2000 -u critical "Screen recording started on $OPTION at $QUALITY quality"
-        echo "Recording started on $OPTION at $QUALITY quality at: $(date)" >> $LOGFILE
+        # notify-send -t 2000 -u critical "Screen recording started on $SELECTION at $QUALITY quality"
+        echo "Recording started on $SELECTION at $QUALITY quality at: $(date)" >> $LOGFILE
         break
     elif ! kill -0 "$PID" 2>/dev/null; then # if process w/ PID does not exist
         notify-send "Recording failed" "See $LOGFILE for details"
