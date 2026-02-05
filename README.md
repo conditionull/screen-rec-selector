@@ -13,11 +13,16 @@ waybar recording_status module:<br />
 <img width="338" height="54" alt="image-4" src="https://github.com/user-attachments/assets/a1cf5fe9-ea91-4999-9526-51f80b4d3b64" />
 
 <details>
-    <summary>screen-rec-selector previews (click to view)</summary>
+    <summary>screen-rec-selector previews <strong>(click to view)</strong></summary>
         
 <img width="793" height="532" alt="image-8" src="https://github.com/user-attachments/assets/cee960f4-0932-48a0-b625-fde4811affcf" />
 <img width="751" height="502" alt="image-9" src="https://github.com/user-attachments/assets/4bb4a997-1ea3-4e8e-b5c3-682a16157901" />
 </details>
+<br />
+
+
+https://github.com/user-attachments/assets/a0baf2ed-9382-432b-8f61-a4816256a045
+
 
 ## Installation
 ```sh
