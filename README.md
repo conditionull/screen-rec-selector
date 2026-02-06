@@ -62,3 +62,5 @@ waybar recording_status module:<br />
 
 
 https://github.com/user-attachments/assets/a0baf2ed-9382-432b-8f61-a4816256a045
+
+(YT link if mp4 fails: https://youtu.be/187pir6Y8ek)
