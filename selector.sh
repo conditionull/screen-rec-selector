@@ -3,9 +3,15 @@ PIDFILE=/tmp/monitor-recorder.pid
 LOGFILE=/tmp/monitor-recorder.log
 
 if [ -f "$PIDFILE" ]; then
-    OLD_PID=$(<"$PIDFILE")
-    if kill -0 "$OLD_PID" 2>/dev/null; then
-        kill "$OLD_PID"
+    PID=$(awk -F':' '{print $1}' < "$PIDFILE")
+    OUTPUT=$(awk -F':' '{print $2}' < "$PIDFILE")
+    if kill -0 "$PID" 2>/dev/null; then
+        kill "$PID"
+
+        wait "$PID" 2>/dev/null
+        if command -v wl-copy >/dev/null 2>&1; then
+          wl-copy --type text/uri-list <<< "file://$OUTPUT"
+        fi
         # notify-send -t 3000 -u critical "Recording stopped"
         echo "Recording stopped at: $(date)" >> $LOGFILE
     else
@@ -57,21 +63,17 @@ fi
 TIMESTAMP=$(date +%Y-%m-%d.%H.%M.%S)
 OUTPUT="$HOME/Videos/${SELECTION}_${TIMESTAMP}.mp4"
 
-BITRATE_MODE=""
-BITRATE_VALUE=""
 if [[ "$QUALITY" == "very_high" || "$QUALITY" == "ultra" ]]; then
-    BITRATE_MODE="-bm cbr"
-    BITRATE_VALUE="-q 20000" # kbps
     gpu-screen-recorder \
       -w "$SELECTION" \
       $REGION_ARG \
       -f 60 \
       -c mp4 \
-      $BITRATE_MODE $BITRATE_VALUE \
+      -bm cbr -q 20000 \
       -a default_output \
       -o "$OUTPUT" &
 else
-    # use quality mode for medium/high
+    # use native quality modes for medium/high
     gpu-screen-recorder \
       -w "$SELECTION" \
       $REGION_ARG \
@@ -84,7 +86,7 @@ else
 fi
 
 PID=$!
-echo "$PID" > "$PIDFILE"
+echo "$PID:$OUTPUT" > $PIDFILE
 
 while true; do
     if [ -f "$OUTPUT" ]; then
@@ -94,7 +96,7 @@ while true; do
         break
     elif ! kill -0 "$PID" 2>/dev/null; then # if process w/ PID does not exist
         notify-send "Recording failed" "See $LOGFILE for details"
-        echo "$(date) - gpu-screen-recorder failed to start" >> "$LOGFILE"
+        echo "$(date) - gpu-screen-recorder failed to start" >> $LOGFILE
         rm "$PIDFILE"
         exit 1
     fi

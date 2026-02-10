@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 PIDFILE="/tmp/monitor-recorder.pid"
+PID=$(awk -F':' '{print $1}' < "$PIDFILE")
 
-if [ -f "$PIDFILE" ] && kill -0 "$(<"$PIDFILE")" 2>/dev/null; then
+if [ -f "$PIDFILE" ] && kill -0 $PID 2>/dev/null; then
     START=$(stat -c %Y "$PIDFILE")
     NOW=$(date +%s)
     ELAPSED=$((NOW - START))
