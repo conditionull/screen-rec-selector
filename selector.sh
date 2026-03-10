@@ -31,7 +31,7 @@ kitty --class recorder-picker -e bash -c "
   gpu-screen-recorder --list-monitors | awk -F'|' '{print \$1}'
   echo 'region'
   echo 'portal'
-) | fzf --height 40% --layout=reverse --border \
+) | fzf --no-input --height 40% --layout=reverse --border \
   --border-label ' Select Output ' \
   --color 'list-label:#99cc99' \
   --color 'footer:#FF7276' \
