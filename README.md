@@ -8,10 +8,10 @@ cd screen-rec-selector
 ./install.sh
 ```
 
-Add waybar module
-`waybar/config`
+Add it as a waybar module:
+`waybar/config` (or whichever config(s) you use)
 ```json
-  "modules-right": [ // Or whatever module section you want
+  "modules-right": [ // Or any other module section
     "custom/recording_status",
     "tray",
     "memory",
@@ -28,7 +28,11 @@ Add waybar module
     "tooltip-format": " End recording: SUPER+SHIFT+R "
   }
 ```
-`waybar/style.css` (customize the css to your liking; this styling works with my waybar)
+`waybar/style.css` ((customize the css to your liking))
+NEW: I updated this css in my [waybar repo](https://github.com/conditionull/i-do-it-my-waybar/tree/main) to fit seamlessly in my waybar:
+
+https://github.com/user-attachments/assets/afc11809-f3f7-4d36-88f9-8c212453279d
+
 ```css
 #custom-recording_status {
   border-radius: 8px;
