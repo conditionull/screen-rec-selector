@@ -28,7 +28,7 @@ Add it as a waybar module:
     "tooltip-format": " End recording: SUPER+SHIFT+R "
   }
 ```
-`waybar/style.css` ((customize the css to your liking))
+`waybar/style.css` ((customize the css to your liking))<br />
 NEW: I updated this css in my [waybar repo](https://github.com/conditionull/i-do-it-my-waybar/tree/main) to fit seamlessly in my waybar:
 
 https://github.com/user-attachments/assets/afc11809-f3f7-4d36-88f9-8c212453279d
