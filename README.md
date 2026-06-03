@@ -1,38 +1,83 @@
-> [!IMPORTANT]
-> This selector works in conjunction with [hyprdots](https://github.com/conditionull/hyprdots)<br />But if you're here you probably want to implement it yourself. Add this bind to hyprland.conf:<br />`bind = $mainMod SHIFT, R, exec, selector.sh`<br />The windowrule too:<br />`windowrule = match:initial_class recorder-picker, float on, size 500 250, center on, stay_focused on`
+<img alt="waybar recording status" src="./assets/status.png" /><br /><br />
 
-## Installation
+Screen recording selector for Hyprland using `gpu-screen-recorder`
+
+Use `SUPER+SHIFT+R` to start recording, choose an output and quality of choice, then use the same bind again to stop. Recordings are saved to `~/Videos`, and the output file is copied to the clipboard when recording stops if `wl-copy` is installed
+
+### Installation
+Dependencies using `yay`:
 ```sh
-git clone git@github.com:conditionull/screen-rec-selector.git
+yay -S --needed gpu-screen-recorder kitty fzf slurp libnotify waybar wl-clipboard
+```
+
+Clone and install:
+```sh
+git clone https://github.com/conditionull/screen-rec-selector.git
 cd screen-rec-selector
 ./install.sh
 ```
+<br />
 
-Add it as a waybar module:
-`waybar/config` (or whichever config(s) you use)
+### Hyprland setup
+bind:
+
+```lua
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("selector.sh"))
+```
+
+window rules for the picker and authentication prompt:
+
+```lua
+hl.window_rule({ match = { initial_class = "recorder-picker" }, float = true, center = true, size = { 500, 250 }, stay_focused = true })
+
+hl.window_rule({ match = { class = "recorder-auth" }, float = true, center = true, size = { 675, 215 }, opacity = "1 0.8" })
+```
+<details>
+<summary>Authentication info</summary>
+
+The auth window only appears if gsr-kms-server is missing the permission it needs for KMS screen capture.
+
+Enter your password once and the script will apply:
+
+```sh
+sudo setcap cap_sys_admin+ep /usr/bin/gsr-kms-server
+```
+
+After that, recordings should start without asking for your password again.
+
+You may see the prompt again if gpu-screen-recorder updates or reinstalls, because /usr/bin/gsr-kms-server can be replaced and lose the permission.
+
+gsr-kms-server is the small helper used by gpu-screen-recorder to capture the screen through KMS. Linux normally locks that behind admin permission, so setcap gives only this helper the permission it needs instead of asking for your password every time you record.
+
+More info:
+
+- [gsr-kms-server manual](https://man.archlinux.org/man/extra/gpu-screen-recorder/gsr-kms-server.1.en) - what the helper is
+- [ArchWiki capabilities](https://wiki.archlinux.org/title/Capabilities) - what `setcap` and `cap_sys_admin` are
+</details>
+<br />
+
+### Waybar
+
+Add the recording status module to your waybar setup, e.g.:
+
 ```json
-  "modules-right": [ // Or any other module section
-    "custom/recording_status",
-    "tray",
-    "memory",
-    "cpu",
-    "wireplumber"
-  ],
+"modules-right": [
+  "custom/recording_status",
+  "tray",
+  "memory",
+  "cpu",
+  "wireplumber"
+]
 ```
 ```json
-  "custom/recording_status": {
-    "exec": "recording_status.sh",
-    "interval": 1,
-    "return-type": "json",
-    "format": "{text}",
-    "tooltip-format": " End recording: SUPER+SHIFT+R "
-  }
+"custom/recording_status": {
+  "exec": "recording_status.sh",
+  "interval": 1,
+  "return-type": "json",
+  "format": "{text}",
+  "tooltip-format": " End recording: SUPER+SHIFT+R "
+}
 ```
-`waybar/style.css` ((customize the css to your liking))<br />
-NEW: I updated this css in my [waybar repo](https://github.com/conditionull/i-do-it-my-waybar/tree/main) to fit seamlessly in my waybar:
-
-https://github.com/user-attachments/assets/afc11809-f3f7-4d36-88f9-8c212453279d
-
 ```css
 #custom-recording_status {
   border-radius: 8px;
@@ -45,26 +90,21 @@ https://github.com/user-attachments/assets/afc11809-f3f7-4d36-88f9-8c212453279d
 }
 ```
 
-Start a screen-recording with bind `SUPER+SHIFT+R` from hyprland.conf. It references a bashscript that utilizes the following dependencies:<br />
-[gpu-screen-recorder](https://aur.archlinux.org/packages/gpu-screen-recorder), [kitty](https://sw.kovidgoyal.net/kitty/binary/), [fzf](https://wiki.archlinux.org/title/Fzf), [slurp](https://man.archlinux.org/man/extra/slurp/slurp.1.en), [coreutils](https://www.gnu.org/software/coreutils/), [libnotify](https://archlinux.org/packages/extra/x86_64/libnotify/), [waybar](https://wiki.archlinux.org/title/Waybar)<br />
+My waybar styling lives here, use it as a reference if you want: [conditionull/i-do-it-my-waybar](https://github.com/conditionull/i-do-it-my-waybar/tree/main)
+<br /><br />
 
-> [!NOTE]
-> The bind acts as a `toggle`; use it to start/stop the recording.<br /> Notifications are currently disabled since we'll be using an additional bash script to track the recording's duration via `waybar` module.
+### Other
+The bind acts as a toggle; run it to start/stop the recording
 
-If you want the screen-recording notifications to display from your notification daemon, uncomment the notify-send lines in the bash file. I prefer the waybar module, it looks cleaner and gives you a headsup that you're recording in case you forget!
-
-waybar recording_status module:<br />
-<img width="338" height="54" alt="image-4" src="https://github.com/user-attachments/assets/a1cf5fe9-ea91-4999-9526-51f80b4d3b64" />
+Notifications are mostly disabled because the waybar module shows the recording duration, uncomment the `notify-send` lines in `selector.sh` if you prefer notification daemon messages!
+<br /><br />
 
 <details>
-    <summary>screen-rec-selector previews <strong>(click to view)</strong></summary>
-        
-<img width="793" height="532" alt="image-8" src="https://github.com/user-attachments/assets/cee960f4-0932-48a0-b625-fde4811affcf" />
-<img width="751" height="502" alt="image-9" src="https://github.com/user-attachments/assets/4bb4a997-1ea3-4e8e-b5c3-682a16157901" />
+  <summary>Additional previews</summary>
+
+https://youtu.be/187pir6Y8ek
+
+<img width=500 alt="waybar recording status" src="./assets/selectquality.png" />
+<img width=500 alt="waybar recording status" src="./assets/selectoutput.png" />
 </details>
-<br />
 
-
-https://github.com/user-attachments/assets/a0baf2ed-9382-432b-8f61-a4816256a045
-
-(YT link if mp4 fails: https://youtu.be/187pir6Y8ek)

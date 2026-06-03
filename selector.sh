@@ -39,7 +39,7 @@ kitty --class recorder-picker -e bash -c "
   
   if [ -s '$TMP_SELECTION' ]; then
     printf 'medium\nhigh\nvery_high\nultra' \
-      | fzf --height 30% --layout=reverse --border \
+      | fzf --no-input --height 30% --layout=reverse --border \
       --border-label ' Select Quality ' \
       --footer 'Press ESC for default quality' \
       > '$TMP_QUALITY'
@@ -54,44 +54,41 @@ rm "$TMP_SELECTION" "$TMP_QUALITY"
 [ -z "$SELECTION" ] && exit
 [ -z "$QUALITY" ] && QUALITY="very_high"
 
-# handle region selection
-REGION_ARG=""
+RECORDER_WINDOW="$SELECTION"
 if [[ "$SELECTION" == "region" ]]; then
     region_geometry=$(slurp -f "%wx%h+%x+%y")
     [ -z "$region_geometry" ] && { notify-send "Region selection cancelled"; exit; }
-    REGION_ARG="-region $region_geometry"
+    RECORDER_WINDOW="$region_geometry"
 fi
 
 TIMESTAMP=$(date +%Y-%m-%d.%H.%M.%S)
 OUTPUT="$HOME/Videos/${SELECTION}_${TIMESTAMP}.mp4"
 
+RECORDER_ARGS=(-w "$RECORDER_WINDOW" -f 60 -c mp4 -a default_output)
 if [[ "$QUALITY" == "very_high" || "$QUALITY" == "ultra" ]]; then
-    gpu-screen-recorder \
-      -w "$SELECTION" \
-      $REGION_ARG \
-      -f 60 \
-      -c mp4 \
-      -bm cbr -q 20000 \
-      -a default_output \
-      -o "$OUTPUT" &
+    RECORDER_ARGS+=(-bm cbr -q 20000)
 else
     # use native quality modes for medium/high
-    gpu-screen-recorder \
-      -w "$SELECTION" \
-      $REGION_ARG \
-      -f 60 \
-      -c mp4 \
-      -bm qp \
-      -q "$QUALITY" \
-      -a default_output \
-      -o "$OUTPUT" &
+    RECORDER_ARGS+=(-bm qp -q "$QUALITY")
+fi
+RECORDER_ARGS+=(-o "$OUTPUT")
+
+GSR_KMS_SERVER=$(command -v gsr-kms-server 2>/dev/null)
+if [ -n "$GSR_KMS_SERVER" ] && command -v getcap >/dev/null 2>&1 && ! getcap "$GSR_KMS_SERVER" | grep -q cap_sys_admin; then
+    kitty --class recorder-auth -e sudo setcap cap_sys_admin+ep "$GSR_KMS_SERVER"
+    if [ $? -ne 0 ] || ! getcap "$GSR_KMS_SERVER" | grep -q cap_sys_admin; then
+        notify-send "Recording cancelled" "gsr-kms-server still needs cap_sys_admin"
+        echo "$(date) - gsr-kms-server missing cap_sys_admin" >> $LOGFILE
+        exit 1
+    fi
 fi
 
+gpu-screen-recorder "${RECORDER_ARGS[@]}" &
 PID=$!
-echo "$PID:$OUTPUT" > $PIDFILE
 
 while true; do
-    if [ -f "$OUTPUT" ]; then
+    if [ -f "$OUTPUT" ] && kill -0 "$PID" 2>/dev/null; then
+        echo "$PID:$OUTPUT" > $PIDFILE
         # notification below not needed when using waybar tray indicator
         # notify-send -t 2000 -u critical "Screen recording started on $SELECTION at $QUALITY quality"
         echo "Recording started on $SELECTION at $QUALITY quality at: $(date)" >> $LOGFILE
